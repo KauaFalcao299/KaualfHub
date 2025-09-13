@@ -296,7 +296,7 @@ TabYou:CreateSlider({
 
 TabYou:CreateSlider({
     Name = "Vida ❤️",
-    Range = {0,10000000},
+    Range = {0,100000},
     Increment = 10,
     CurrentValue = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and LocalPlayer.Character.Humanoid.Health or 100,
     Callback = function(v)
