@@ -2,7 +2,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterGui = game:GetService("StarterGui")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 -- Função de notificação Rayfield + nativa
 local function Notify(title, text)
@@ -62,26 +62,23 @@ local function GetTarget()
    return Players:FindFirstChild(SelectedPlayer)
 end
 
--- Função para criar botão de jogador
+-- Função de criar botões de jogador
 local function CreatePlayerButton(name, callback)
     TabPlayers:CreateButton({Name = name, Callback = callback})
 end
 
--- 🔨BAN (tenta ban real, se erro deixa invisível)
+-- BAN 🔨 (tenta banir, se der erro deixa invisível)
 CreatePlayerButton("🔨BAN", function()
     local t = GetTarget()
-    if t then
+    if t and t.Character then
         local success, err = pcall(function()
-            t:Kick("Você foi banido pelo Kaualf Hub!")
+            t:Kick("Você foi banido!")
         end)
         if not success then
-            -- Deixa invisível se não conseguir kickar
-            if t.Character then
-                for _,part in ipairs(t.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = 1
-                        if part:FindFirstChild("face") then part.face:Destroy() end
-                    end
+            for _,part in ipairs(t.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 1
+                    if part:FindFirstChild("face") then part.face:Destroy() end
                 end
             end
         end
@@ -91,7 +88,7 @@ CreatePlayerButton("🔨BAN", function()
     end
 end)
 
--- Outros botões jogadores
+-- Kill
 CreatePlayerButton("Kill ☠️", function()
     local t = GetTarget()
     if t and t.Character and t.Character:FindFirstChild("Humanoid") then
@@ -100,6 +97,7 @@ CreatePlayerButton("Kill ☠️", function()
     end
 end)
 
+-- TP até você
 CreatePlayerButton("TP ↔️", function()
     local t = GetTarget()
     if t and t.Character and LocalPlayer.Character then
@@ -108,6 +106,7 @@ CreatePlayerButton("TP ↔️", function()
     end
 end)
 
+-- Você até o alvo
 CreatePlayerButton("Se TP 🔄", function()
     local t = GetTarget()
     if t and t.Character and LocalPlayer.Character then
@@ -116,6 +115,7 @@ CreatePlayerButton("Se TP 🔄", function()
     end
 end)
 
+-- Congelar
 CreatePlayerButton("Congelar 🧊", function()
     local t = GetTarget()
     if t and t.Character then
@@ -124,6 +124,7 @@ CreatePlayerButton("Congelar 🧊", function()
     end
 end)
 
+-- Descongelar
 CreatePlayerButton("Descongelar 🔓", function()
     local t = GetTarget()
     if t and t.Character then
@@ -132,6 +133,7 @@ CreatePlayerButton("Descongelar 🔓", function()
     end
 end)
 
+-- Fogo
 CreatePlayerButton("Fogo 🔥", function()
     local t = GetTarget()
     if t and t.Character then
@@ -147,6 +149,7 @@ CreatePlayerButton("Fogo 🔥", function()
     end
 end)
 
+-- Neve
 CreatePlayerButton("Neve ❄️", function()
     local t = GetTarget()
     if t and t.Character then
@@ -163,6 +166,7 @@ CreatePlayerButton("Neve ❄️", function()
     end
 end)
 
+-- Explodir
 CreatePlayerButton("Explodir 💥", function()
     local t = GetTarget()
     if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
@@ -174,6 +178,7 @@ CreatePlayerButton("Explodir 💥", function()
     end
 end)
 
+-- Sentar
 CreatePlayerButton("Sentar 🪑", function()
     local t = GetTarget()
     if t and t.Character and t.Character:FindFirstChild("Humanoid") then
@@ -182,6 +187,7 @@ CreatePlayerButton("Sentar 🪑", function()
     end
 end)
 
+-- Levitar
 CreatePlayerButton("Levitar 🕊️", function()
     local t = GetTarget()
     if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
@@ -190,20 +196,21 @@ CreatePlayerButton("Levitar 🕊️", function()
     end
 end)
 
--- Prender com modelo Toolbox
+-- Prender (modelo da toolbox)
 CreatePlayerButton("Prender ⛓️", function()
     local t = GetTarget()
     if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
-        local model = game:GetObjects("rbxassetid://6414409964")[1]
-        model.Parent = workspace
+        local model = game:GetService("InsertService"):LoadAsset(6414409964)
+        model.Parent = Workspace
         model:SetPrimaryPartCFrame(t.Character.HumanoidRootPart.CFrame)
         Notify("Kaualf Hub", t.Name.." foi preso!")
     end
 end)
 
+-- Desprender
 CreatePlayerButton("Desprender 🔓", function()
-    for _,obj in ipairs(workspace:GetChildren()) do
-        if obj:IsA("Model") and obj.Name == "Cage" then obj:Destroy() end
+    for _,m in ipairs(Workspace:GetChildren()) do
+        if m:IsA("Model") and m.Name ~= LocalPlayer.Name then m:Destroy() end
     end
     Notify("Kaualf Hub", "Todas as prisões removidas!")
 end)
@@ -252,6 +259,7 @@ TabYou:CreateButton({Name = "God Mode 🛡️", Callback = function()
    end
 end})
 
+-- Sliders
 TabYou:CreateSlider({
     Name = "Super Jump ⬆️",
     Range = {50,300},
@@ -266,7 +274,7 @@ TabYou:CreateSlider({
 
 TabYou:CreateSlider({
     Name = "WalkSpeed 🏃",
-    Range = {16,200},
+    Range = {16,2000},
     Increment = 5,
     CurrentValue = 16,
     Callback = function(v)
@@ -277,13 +285,25 @@ TabYou:CreateSlider({
 })
 
 TabYou:CreateSlider({
-    Name = "Gravity 🌌",
+    Name = "Gravidade 🌌",
     Range = {0,200},
     Increment = 5,
-    CurrentValue = 196.2,
+    CurrentValue = workspace.Gravity,
     Callback = function(v)
         workspace.Gravity = v
-        Notify("Kaualf Hub", "Gravidade ajustada para "..v)
+    end
+})
+
+TabYou:CreateSlider({
+    Name = "Vida ❤️",
+    Range = {0,10000000},
+    Increment = 10,
+    CurrentValue = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and LocalPlayer.Character.Humanoid.Health or 100,
+    Callback = function(v)
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.MaxHealth = v
+            LocalPlayer.Character.Humanoid.Health = v
+        end
     end
 })
 
@@ -350,14 +370,17 @@ TabExtra:CreateButton({Name = "Confetti Party 🎉", Callback = function()
     Notify("Kaualf Hub", "Festa de confete!")
 end})
 
+-- Comandos Admin (Infinite Yield)
 TabExtra:CreateButton({Name = "Abrir Comandos ADMIN ⚡", Callback = function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 end})
 
+-- Dark Spawner
 TabExtra:CreateButton({Name = "Abrir Dark Spawner 🌱", Callback = function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/iwantsom3/script/refs/heads/main/Gag"))()
 end})
 
+-- Trax Spawner
 TabExtra:CreateButton({Name = "Abrir Trax Spawner 🧠", Callback = function()
     loadstring(game:HttpGet("https://gitlab.com/traxscriptss/traxscriptss/-/raw/main/visual2.lua"))()
 end})
